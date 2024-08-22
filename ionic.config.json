@@ -1,0 +1,7 @@
+{
+  "name": "TukiPlus",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
