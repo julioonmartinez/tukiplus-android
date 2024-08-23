@@ -1,0 +1,25 @@
+<ion-list class="mt-2" >
+  @for (task of tasks ; track $index) {
+    <ion-item-sliding #slidingItem >
+      <ion-item (click)="toggleTask(task)">
+        <ion-label [ngClass]="{'completed': task.completed}">
+          {{ task.name | titlecase }}
+        </ion-label>
+        <ion-label class="habit" [ngClass]="{'completed': task.completed}">
+          {{ task.relation }}
+        </ion-label>
+        <ion-icon
+          [icon]="task.completed ? checkmarkCircleIcon : ellipseOutlineIcon"
+          slot="end">
+        </ion-icon>
+      </ion-item>
+  
+      <!-- Opciones que aparecen al deslizar -->
+      <ion-item-options side="end">
+        <ion-item-option color="danger" (click)="deleteTask(task, slidingItem)">
+          <ion-icon [icon]="trashOutlineIcon" ></ion-icon>
+        </ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
+  }
+</ion-list>

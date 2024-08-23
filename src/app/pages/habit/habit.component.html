@@ -1,0 +1,17 @@
+<ion-content class="ion-padding">
+  <h1>{{habit.name | titlecase }} </h1>
+
+  <ion-item>
+    <ion-input placeholder="Agrega una tarea rápido" [(ngModel)]="newTask"></ion-input>
+    <!-- Botón con el ícono importado -->
+    <ion-button slot="end" (click)="addTask()" fill="solid" shape="round">
+      <ion-icon [icon]="add"></ion-icon> <!-- Usamos [icon] en lugar de name -->
+    </ion-button>
+  </ion-item>
+
+  <ion-list>
+    <app-list-task (deleteClick)="deleteTask($event)" [tasks]="habit.listTask!" (completeClick)="completeTask($event)" ></app-list-task>
+  </ion-list>
+</ion-content>
+
+<ion-button slot="end" (click)="removeHabit()" >Borrar habito</ion-button>

@@ -25,3 +25,16 @@
 #container a {
   text-decoration: none;
 }
+
+.completed {
+  text-decoration: line-through; /* Tachar el texto */
+  color: lightgray; /* Hacer el texto más claro */
+}
+
+.habit{
+  color: #2b2b2b;
+}
+
+.mt-5{
+  margin-top: 40px;
+}

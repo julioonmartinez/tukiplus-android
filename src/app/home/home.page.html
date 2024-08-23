@@ -1,20 +1,21 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Blank
-    </ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="ion-padding">
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <h1>Iniciemos el dia</h1>
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
-  </div>
+  <ion-item class="mt-5" >
+
+    <ion-input placeholder="Agrega una tarea rápido" [(ngModel)]="newTask"></ion-input>
+
+    <ion-button slot="end" (click)="addTask()">Agregar</ion-button>
+  </ion-item>
+  <ion-list class="mt-2" >
+   <app-list-task [tasks]="tasks" ></app-list-task>
+  </ion-list>
+
+  <ion-content  >
+    <ion-item class="mt-5" >
+      <ion-input placeholder="Agrega un habito" [(ngModel)]="newHabit"></ion-input>
+  <ion-button slot="end" (click)="addHabit()">Agregar</ion-button>
+    </ion-item>
+  </ion-content>
 </ion-content>
