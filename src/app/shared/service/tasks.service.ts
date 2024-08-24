@@ -3,6 +3,7 @@ import { Task } from '../interfaces/task';
 import { Habits } from '../interfaces/habits';
 import { v4 as uuidv4 } from 'uuid'; // Importa la función v4 para generar UUIDs
 import { Preferences } from '@capacitor/preferences';
+import { BehaviorSubject } from 'rxjs';
 
 
 @Injectable({
@@ -11,8 +12,8 @@ import { Preferences } from '@capacitor/preferences';
 export class TasksService {
 
   private STORAGE_KEY = 'habits';
-
-  
+  private habitsSubject = new BehaviorSubject<Habits[]>([]);
+  public habits$ = this.habitsSubject.asObservable();
 
   listHabits: Habits[] = [
     {
@@ -39,34 +40,24 @@ export class TasksService {
   listNameHabits: {name: string} [] | null = []
 
 
-  constructor(
-
-    
-  ) {
-
-    
-
-    
-   }
-
-
-  getFirstTasks(): Task[] {
-    let listTaskFirst: Task[] = [];
-
-    this.listHabits.forEach(habit => {
-      const firstThreeTasks = habit.listTask!.slice(0, 3);  // Extrae las primeras 3 tareas
-      listTaskFirst = listTaskFirst.concat(firstThreeTasks);  // Añade esas tareas a la lista principal
-    });
-
-    return listTaskFirst;
+    constructor() {
+    // Cargar hábitos desde el almacenamiento al iniciar el servicio
+    this.loadHabits();
   }
 
-  // Guardar o actualizar todos los hábitos
+  private async loadHabits(): Promise<void> {
+    const habits = await this.getAllHabits();
+    this.habitsSubject.next(habits); // Emitir los hábitos cargados
+  }
+
+
+
   private async saveHabits(habits: Habits[]): Promise<void> {
     await Preferences.set({
       key: this.STORAGE_KEY,
       value: JSON.stringify(habits),
     });
+    this.habitsSubject.next(habits); // Emitir los hábitos actualizados
   }
 
   // Obtener todos los hábitos
@@ -78,7 +69,7 @@ export class TasksService {
   // Crear un nuevo hábito
   public async createHabit(name: string): Promise<Habits> {
     const newHabit: Habits = {
-      id: uuidv4(), // Generamos un ID único
+      id: uuidv4(), 
       name,
       listTask: [],
     };
@@ -86,6 +77,32 @@ export class TasksService {
     habits.push(newHabit);
     await this.saveHabits(habits);
     return newHabit;
+  }
+
+  // Agregar una nueva tarea a un hábito
+  public async addTaskToHabit(habitId: string, taskName: string, relation: string): Promise<Task | null> {
+    const habits = await this.getAllHabits();
+    const habit = habits.find((h) => h.id === habitId);
+
+    if (habit) {
+      const newTask: Task = {
+        id: uuidv4(),
+        name: taskName,
+        completed: false,
+        relation,
+        status: 'pending',
+        position: habit.listTask?.length || 0,
+      };
+
+      if (!habit.listTask) {
+        habit.listTask = [];
+      }
+      habit.listTask.push(newTask);
+
+      await this.saveHabits(habits); // Guardar y emitir la lista actualizada
+      return newTask;
+    }
+    return null;
   }
 
   // Actualizar un hábito
@@ -105,56 +122,20 @@ export class TasksService {
     await this.saveHabits(habits);
   }
 
-  // Agregar una nueva tarea a un hábito
-   public async addTaskToHabit(habitId: string, taskName: string, relation: string): Promise<Task | null> {
-    const habits = await this.getAllHabits();
-    const habit = habits.find((h) => h.id === habitId);
-
-    if (habit) {
-      const newTask: Task = {
-        id: uuidv4(), // Generar un ID único para la tarea
-        name: taskName,
-        completed: false,
-        relation,
-        status: 'pending',
-        position: habit.listTask?.length || 0,
-      };
-
-      // Agregar la nueva tarea a la lista de tareas del hábito
-      if (!habit.listTask) {
-        habit.listTask = [];
-      }
-      habit.listTask.push(newTask);
-
-      // Guardar los hábitos actualizados
-      await this.saveHabits(habits);
-
-      // Devolver la nueva tarea con su ID y otros datos
-      return newTask;
-    }
-    return null;
-  }
-
   // Obtener las primeras 3 tareas según la posición
   public async getTopTasks(limit: number = 9): Promise<Task[]> {
     const habits = await this.getAllHabits();
     const allTasks: Task[] = [];
 
-    // Recorremos todos los hábitos
     for (const habit of habits) {
       if (habit.listTask && habit.listTask.length > 0) {
-        // Extraemos las primeras 3 tareas de cada hábito
         const tasks = habit.listTask.slice(0, 3);
         allTasks.push(...tasks);
       }
-
-      // Si llegamos al límite de 9 tareas, salimos del bucle
       if (allTasks.length >= limit) {
         break;
       }
     }
-
-    // Devolvemos solo las primeras 9 tareas
     return allTasks.slice(0, limit);
   }
 
@@ -164,7 +145,7 @@ export class TasksService {
 
     if (habit && habit.listTask) {
       habit.listTask = habit.listTask.filter(task => task.id !== taskId);
-      await this.saveHabits(habits); // Guardar los hábitos actualizados
+      await this.saveHabits(habits);
     }
   }
 
@@ -175,8 +156,8 @@ export class TasksService {
     if (habit && habit.listTask) {
       const taskIndex = habit.listTask.findIndex(task => task.id === updatedTask.id);
       if (taskIndex > -1) {
-        habit.listTask[taskIndex] = updatedTask; // Actualizar la tarea
-        await this.saveHabits(habits); // Guardar los hábitos actualizados
+        habit.listTask[taskIndex] = updatedTask;
+        await this.saveHabits(habits);
       }
     }
   }

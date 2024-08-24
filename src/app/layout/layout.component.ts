@@ -4,13 +4,14 @@ import { RouterModule } from '@angular/router'; //
 import { Habits } from '../shared/interfaces/habits';
 import { TasksService } from '../shared/service/tasks.service';
 import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
-  imports: [IonicModule, RouterModule ],
+  imports: [IonicModule, RouterModule, CommonModule ],
 })
 export class LayoutComponent  implements OnInit {
 
@@ -31,7 +32,9 @@ export class LayoutComponent  implements OnInit {
 
   async ngOnInit() {
 
-    this.listHabits = await  this.taskService.getAllHabits()
+    this.taskService.habits$.subscribe(data=>{
+      this.listHabits = data
+    })
     
   }
 

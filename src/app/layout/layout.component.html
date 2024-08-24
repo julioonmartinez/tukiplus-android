@@ -9,7 +9,7 @@
     <ion-list>
       <ion-item routerLink="/home">Home</ion-item>
       @for (item of listHabits; track $index) {
-        <ion-item (click)="generateLInk(item.id!)"  >{{item.name}}</ion-item>
+        <ion-item (click)="generateLInk(item.id!)"  >{{item.name | titlecase }}</ion-item>
       }
     </ion-list>
   </ion-content>
